@@ -1,0 +1,22 @@
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfplan
+*.tfvars
+!terraform/environments/**/*.tfvars
+.terraform.lock.hcl
+crash.log
+
+# Secrets
+*.pem
+*.key
+*.env
+kubeconfig
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
