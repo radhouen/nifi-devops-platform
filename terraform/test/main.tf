@@ -12,10 +12,12 @@ provider "azurerm" {
   skip_provider_registration = true
 }
 
-module "subscription" {
-  source       = "./modules/subscription"
-  location     = var.location
-  region_short = var.region_short
-  project      = var.project
-  environment  = var.environment
+data "azurerm_subscription" "current" {}
+
+output "subscription_id" {
+  value = data.azurerm_subscription.current.id
+}
+
+output "tenant_id" {
+  value = data.azurerm_subscription.current.tenant_id
 }
