@@ -19,3 +19,26 @@ module "subscription" {
   project      = var.project
   environment  = var.environment
 }
+
+module "networking" {
+  source              = "./modules/networking"
+  project             = var.project
+  environment         = var.environment
+  region_short        = var.region_short
+  location            = module.subscription.location
+  resource_group_name = module.subscription.resource_group_name
+  tags                = module.subscription.tags
+  vnet_cidr           = var.vnet_cidr
+  aks_subnet_cidr     = var.aks_subnet_cidr
+  appgw_subnet_cidr   = var.appgw_subnet_cidr
+}
+
+module "security" {
+  source              = "./modules/keyvault"
+  project             = var.project
+  environment         = var.environment
+  region_short        = var.region_short
+  location            = module.subscription.location
+  resource_group_name = module.subscription.resource_group_name
+  tags                = module.subscription.tags
+}
