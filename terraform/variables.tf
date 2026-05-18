@@ -35,15 +35,15 @@ variable "appgw_subnet_cidr" {
 
 variable "k8s_version" {
   type    = string
-  default = "1.29"
+  default = "1.35.4"
 }
 
 variable "system_node_vm_size" {
   type    = string
-  default = "Standard_B2s"
+  default = "Standard_D2s_v3"
 }
 
 variable "nifi_node_vm_size" {
   type    = string
-  default = "Standard_B2ms"
+  default = "Standard_D2s_v3"
 }
