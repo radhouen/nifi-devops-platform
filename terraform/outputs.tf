@@ -29,3 +29,11 @@ output "key_vault_uri" {
 output "acr_login_server" {
   value = module.security.acr_login_server
 }
+
+output "aks_cluster_name" {
+  value = module.aks.cluster_name
+}
+
+output "aks_kubelet_identity" {
+  value = module.aks.kubelet_identity
+}
