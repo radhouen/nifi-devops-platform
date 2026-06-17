@@ -10,12 +10,12 @@ variable "environment" {
 
 variable "location" {
   type    = string
-  default = "westeurope"
+  default = "francecentral"
 }
 
 variable "region_short" {
   type    = string
-  default = "we"
+  default = "fr"
 }
 
 variable "vnet_cidr" {
