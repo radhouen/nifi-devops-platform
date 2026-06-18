@@ -1,0 +1,55 @@
+replicaCount: 2
+
+image:
+  repository: cgxnififracr.azurecr.io/nifi
+  tag: "1.25.0"
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 8080
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+  limits:
+    cpu: "1"
+    memory: 2Gi
+
+persistence:
+  enabled: true
+  storageClass: "default"
+  size: 10Gi
+
+nodeSelector:
+  workload: nifi
+
+tolerations:
+  - key: "workload"
+    operator: "Equal"
+    value: "nifi"
+    effect: "NoSchedule"
+
+keyVault:
+  enabled: true
+  name: ""
+  tenantId: ""
+
+region:
+  name: "default"
+  dbHost: ""
+  dbPort: "5432"
+  dbName: ""
+
+ingress:
+  enabled: false
+  className: ""
+  host: ""
+
+prometheus:
+  enabled: true
+  port: 9092

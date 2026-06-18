@@ -1,0 +1,14 @@
+region:
+  name: "france"
+  dbHost: "cgx-fr-db.postgres.database.azure.com"
+  dbPort: "5432"
+  dbName: "cgx_production_fr"
+
+keyVault:
+  name: "cgx-nifi-fr-kv"
+
+ingress:
+  enabled: true
+  host: "nifi-fr.cgx.internal"
+
+replicaCount: 2

@@ -1,0 +1,13 @@
+apiVersion: v2
+name: nifi
+description: Apache NiFi Helm chart for CGX China-France DB sync platform
+type: application
+version: 0.1.0
+appVersion: "1.25.0"
+keywords:
+  - nifi
+  - data-flow
+  - etl
+maintainers:
+  - name: Khaled
+    email: khaled@cgx.internal

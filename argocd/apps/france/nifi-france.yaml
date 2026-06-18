@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nifi-france
+  namespace: argocd
+spec:
+  project: cgx-nifi-platform
+
+  source:
+    repoURL: 'https://github.com/radhouen/nifi-devops-platform.git'
+    targetRevision: main
+    path: helm/nifi
+    helm:
+      valueFiles:
+        - values-france.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nifi-france
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 2m

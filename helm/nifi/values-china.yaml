@@ -1,0 +1,14 @@
+region:
+  name: "china"
+  dbHost: "cgx-cn-db.postgres.database.chinacloudapi.cn"
+  dbPort: "5432"
+  dbName: "cgx_production_cn"
+
+keyVault:
+  name: "cgx-nifi-cn-kv"
+
+ingress:
+  enabled: true
+  host: "nifi-cn.cgx.internal"
+
+replicaCount: 2
