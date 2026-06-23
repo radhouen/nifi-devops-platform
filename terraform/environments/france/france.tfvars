@@ -1,1 +1,2 @@
-you can add all keys but with dummy values
+location     = "francecentral"
+region_short = "fr"

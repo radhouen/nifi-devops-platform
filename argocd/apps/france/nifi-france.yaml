@@ -3,30 +3,32 @@ kind: Application
 metadata:
   name: nifi-france
   namespace: argocd
+  labels:
+    region: france
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
-  project: cgx-nifi-platform
-
+  project: cgx-nifi
   source:
-    repoURL: 'https://github.com/radhouen/nifi-devops-platform.git'
-    targetRevision: main
+    repoURL: https://github.com/radhouen/nifi-devops-platform.git
+    targetRevision: HEAD
     path: helm/nifi
     helm:
       valueFiles:
         - values-france.yaml
-
   destination:
     server: https://kubernetes.default.svc
     namespace: nifi-france
-
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
     retry:
       limit: 3
       backoff:
-        duration: 10s
+        duration: 30s
+        maxDuration: 3m
         factor: 2
-        maxDuration: 2m

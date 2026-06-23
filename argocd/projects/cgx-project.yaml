@@ -1,38 +1,30 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: cgx-nifi-platform
+  name: cgx-nifi
   namespace: argocd
 spec:
-  description: CGX NiFi China-France DB sync platform
-
+  description: CGX NiFi DB sync platform — China & France
   sourceRepos:
-    - 'https://github.com/radhouen/nifi-devops-platform.git'
-
+    - https://github.com/radhouen/nifi-devops-platform.git
   destinations:
     - namespace: nifi-france
       server: https://kubernetes.default.svc
     - namespace: nifi-china
       server: https://kubernetes.default.svc
-
   clusterResourceWhitelist:
-    - group: ''
+    - group: ""
       kind: Namespace
-
   namespaceResourceWhitelist:
-    - group: 'apps'
+    - group: "apps"
       kind: StatefulSet
-    - group: ''
+    - group: ""
       kind: Service
-    - group: ''
+    - group: ""
       kind: ConfigMap
-    - group: ''
+    - group: ""
       kind: Secret
-    - group: 'networking.k8s.io'
+    - group: "networking.k8s.io"
       kind: Ingress
-
-  roles:
-    - name: read-only
-      description: Read-only access to CGX NiFi apps
-      policies:
-        - p, proj:cgx-nifi-platform:read-only, applications, get, cgx-nifi-platform/*, allow
+    - group: ""
+      kind: PersistentVolumeClaim
