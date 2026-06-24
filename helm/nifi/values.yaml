@@ -1,8 +1,8 @@
-replicaCount: 2
+replicaCount: 1
 
 image:
-  repository: cgxnififracr.azurecr.io/nifi
-  tag: "1.25.0"
+  repository: apache/nifi
+  tag: "2.4.0"
   pullPolicy: IfNotPresent
 
 nameOverride: ""
@@ -10,46 +10,48 @@ fullnameOverride: ""
 
 service:
   type: ClusterIP
-  port: 8080
+  port: 8443
+  httpsEnabled: true
 
 resources:
   requests:
     cpu: 500m
-    memory: 1Gi
-  limits:
-    cpu: "1"
     memory: 2Gi
+  limits:
+    cpu: "2"
+    memory: 4Gi
 
 persistence:
   enabled: true
-  storageClass: "default"
-  size: 10Gi
+  storageClass: "local-path"
+  flowSize: 1Gi
+  confSize: 1Gi
+  contentSize: 5Gi
+  databaseSize: 1Gi
 
-nodeSelector:
-  workload: nifi
+nodeSelector: {}
+tolerations: []
 
-tolerations:
-  - key: "workload"
-    operator: "Equal"
-    value: "nifi"
-    effect: "NoSchedule"
+registry:
+  enabled: true
+  url: "http://nifi-registry:18080"
 
 keyVault:
-  enabled: true
-  name: ""
-  tenantId: ""
+  enabled: false
 
 region:
-  name: "default"
+  name: "france"
   dbHost: ""
   dbPort: "5432"
   dbName: ""
 
 ingress:
   enabled: false
-  className: ""
-  host: ""
 
 prometheus:
   enabled: true
   port: 9092
+
+singleUserCredentials:
+  username: admin
+  password: adminadminadmin

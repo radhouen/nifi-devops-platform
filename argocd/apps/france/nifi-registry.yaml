@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: nifi-france
+  name: nifi-registry
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -10,10 +10,7 @@ spec:
   source:
     repoURL: https://github.com/radhouen/nifi-devops-platform.git
     targetRevision: HEAD
-    path: helm/nifi
-    helm:
-      valueFiles:
-        - values-france.yaml
+    path: helm/nifi-registry
   destination:
     server: https://kubernetes.default.svc
     namespace: nifi-france

@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "nifi.labels" . | nindent 4 }}
 spec:
-  serviceName: {{ include "nifi.fullname" . }}
+  serviceName: {{ include "nifi.fullname" . }}-headless
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
@@ -16,63 +16,83 @@ spec:
       labels:
         {{- include "nifi.labels" . | nindent 8 }}
     spec:
+      {{- if .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
       tolerations:
         {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
       containers:
         - name: nifi
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.service.port }}
-              name: http
-            {{- if .Values.prometheus.enabled }}
-            - containerPort: {{ .Values.prometheus.port }}
-              name: metrics
-            {{- end }}
-          envFrom:
-            - configMapRef:
-                name: {{ include "nifi.fullname" . }}-config
+              name: https
           env:
-            - name: DB_HOST
-              value: {{ .Values.region.dbHost | quote }}
-            - name: DB_PORT
-              value: {{ .Values.region.dbPort | quote }}
-            - name: DB_NAME
-              value: {{ .Values.region.dbName | quote }}
-            {{- if .Values.keyVault.enabled }}
-            - name: DB_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "nifi.fullname" . }}-db-secret
-                  key: username
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "nifi.fullname" . }}-db-secret
-                  key: password
+            - name: NIFI_WEB_HTTPS_PORT
+              value: {{ .Values.service.port | quote }}
+            - name: NIFI_WEB_HTTPS_HOST
+              value: "0.0.0.0"
+            - name: SINGLE_USER_CREDENTIALS_USERNAME
+              value: {{ .Values.singleUserCredentials.username | quote }}
+            - name: SINGLE_USER_CREDENTIALS_PASSWORD
+              value: {{ .Values.singleUserCredentials.password | quote }}
+            {{- if .Values.registry.enabled }}
+            - name: NIFI_REGISTRY_URL
+              value: {{ .Values.registry.url | quote }}
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: nifi-data
+            - name: flow-data
               mountPath: /opt/nifi/nifi-current/data
-            - name: nifi-flow
-              mountPath: /opt/nifi/nifi-current/conf/flow.json.gz
-              subPath: flow.json.gz
-      volumes:
-        - name: nifi-flow
-          configMap:
-            name: {{ include "nifi.fullname" . }}-flow
-  {{- if .Values.persistence.enabled }}
+            - name: conf-data
+              mountPath: /opt/nifi/nifi-current/conf
+            - name: content-data
+              mountPath: /opt/nifi/nifi-current/content_repository
+            - name: database-data
+              mountPath: /opt/nifi/nifi-current/database_repository
+          readinessProbe:
+            httpGet:
+              path: /nifi
+              port: {{ .Values.service.port }}
+              scheme: HTTPS
+            initialDelaySeconds: 90
+            periodSeconds: 15
+            failureThreshold: 10
   volumeClaimTemplates:
     - metadata:
-        name: nifi-data
+        name: flow-data
       spec:
         accessModes: ["ReadWriteOnce"]
         storageClassName: {{ .Values.persistence.storageClass }}
         resources:
           requests:
-            storage: {{ .Values.persistence.size }}
-  {{- end }}
+            storage: {{ .Values.persistence.flowSize }}
+    - metadata:
+        name: conf-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: {{ .Values.persistence.storageClass }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.confSize }}
+    - metadata:
+        name: content-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: {{ .Values.persistence.storageClass }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.contentSize }}
+    - metadata:
+        name: database-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: {{ .Values.persistence.storageClass }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.databaseSize }}

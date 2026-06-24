@@ -4,7 +4,7 @@ metadata:
   name: cgx-nifi
   namespace: argocd
 spec:
-  description: CGX NiFi DB sync platform — China & France
+  description: CGX NiFi DB sync platform — local PoC
   sourceRepos:
     - https://github.com/radhouen/nifi-devops-platform.git
   destinations:
@@ -12,19 +12,17 @@ spec:
       server: https://kubernetes.default.svc
     - namespace: nifi-china
       server: https://kubernetes.default.svc
+    - namespace: monitoring
+      server: https://kubernetes.default.svc
+    - namespace: argocd
+      server: https://kubernetes.default.svc
   clusterResourceWhitelist:
     - group: ""
       kind: Namespace
+    - group: "rbac.authorization.k8s.io"
+      kind: ClusterRole
+    - group: "rbac.authorization.k8s.io"
+      kind: ClusterRoleBinding
   namespaceResourceWhitelist:
-    - group: "apps"
-      kind: StatefulSet
-    - group: ""
-      kind: Service
-    - group: ""
-      kind: ConfigMap
-    - group: ""
-      kind: Secret
-    - group: "networking.k8s.io"
-      kind: Ingress
-    - group: ""
-      kind: PersistentVolumeClaim
+    - group: "*"
+      kind: "*"

@@ -1,0 +1,21 @@
+image:
+  repository: apache/nifi-registry
+  tag: "2.4.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 18080
+
+persistence:
+  enabled: true
+  storageClass: "local-path"
+  size: 2Gi
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
