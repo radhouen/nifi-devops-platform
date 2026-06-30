@@ -24,6 +24,29 @@ spec:
       tolerations:
         {{- toYaml .Values.tolerations | nindent 8 }}
       {{- end }}
+      initContainers:
+        - name: init-conf
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - bash
+            - -c
+            - |
+              echo "Checking conf directory..."
+              if [ ! -f /opt/nifi/nifi-current/conf/nifi.properties ]; then
+                echo "Copying default config files to PVC..."
+                cp -rn /opt/nifi/nifi-current/conf.dist/. /opt/nifi/nifi-current/conf/ 2>/dev/null || \
+                cp -rn /opt/nifi/nifi-current/conf.default/. /opt/nifi/nifi-current/conf/ 2>/dev/null || \
+                cp -rn /opt/nifi/nifi-1.*/conf/. /opt/nifi/nifi-current/conf/ 2>/dev/null || \
+                find /opt/nifi -name "nifi.properties" -not -path "*/conf/*" -exec cp {} /opt/nifi/nifi-current/conf/ \; 2>/dev/null
+                echo "Done copying config."
+              else
+                echo "Config already exists, skipping."
+              fi
+              ls /opt/nifi/nifi-current/conf/ || echo "conf dir still empty"
+          volumeMounts:
+            - name: conf-data
+              mountPath: /opt/nifi/nifi-current/conf
       containers:
         - name: nifi
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -60,9 +83,17 @@ spec:
               path: /nifi
               port: {{ .Values.service.port }}
               scheme: HTTPS
-            initialDelaySeconds: 90
-            periodSeconds: 15
+            initialDelaySeconds: 120
+            periodSeconds: 20
             failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /nifi
+              port: {{ .Values.service.port }}
+              scheme: HTTPS
+            initialDelaySeconds: 180
+            periodSeconds: 30
+            failureThreshold: 5
   volumeClaimTemplates:
     - metadata:
         name: flow-data
