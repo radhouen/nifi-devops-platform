@@ -32,21 +32,19 @@ spec:
             - bash
             - -c
             - |
-              echo "Checking conf directory..."
-              if [ ! -f /opt/nifi/nifi-current/conf/nifi.properties ]; then
-                echo "Copying default config files to PVC..."
-                cp -rn /opt/nifi/nifi-current/conf.dist/. /opt/nifi/nifi-current/conf/ 2>/dev/null || \
-                cp -rn /opt/nifi/nifi-current/conf.default/. /opt/nifi/nifi-current/conf/ 2>/dev/null || \
-                cp -rn /opt/nifi/nifi-1.*/conf/. /opt/nifi/nifi-current/conf/ 2>/dev/null || \
-                find /opt/nifi -name "nifi.properties" -not -path "*/conf/*" -exec cp {} /opt/nifi/nifi-current/conf/ \; 2>/dev/null
-                echo "Done copying config."
+              echo "Checking if conf PVC is empty..."
+              if [ -z "$(ls -A /conf-pvc)" ]; then
+                echo "PVC is empty — copying default config files..."
+                cp -r /opt/nifi/nifi-current/conf/. /conf-pvc/
+                echo "Done. Files copied:"
+                ls /conf-pvc/
               else
-                echo "Config already exists, skipping."
+                echo "PVC already has files — skipping copy."
+                ls /conf-pvc/
               fi
-              ls /opt/nifi/nifi-current/conf/ || echo "conf dir still empty"
           volumeMounts:
             - name: conf-data
-              mountPath: /opt/nifi/nifi-current/conf
+              mountPath: /conf-pvc
       containers:
         - name: nifi
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
