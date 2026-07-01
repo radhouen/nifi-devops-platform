@@ -55,3 +55,14 @@ prometheus:
 singleUserCredentials:
   username: admin
   password: adminadminadmin
+
+# Increased probe timeouts for NiFi 2.x slow startup
+readinessProbe:
+  initialDelaySeconds: 300
+  periodSeconds: 30
+  failureThreshold: 20
+
+livenessProbe:
+  initialDelaySeconds: 600
+  periodSeconds: 60
+  failureThreshold: 10

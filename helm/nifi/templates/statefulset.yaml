@@ -81,17 +81,17 @@ spec:
               path: /nifi
               port: {{ .Values.service.port }}
               scheme: HTTPS
-            initialDelaySeconds: 120
-            periodSeconds: 20
-            failureThreshold: 10
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
           livenessProbe:
             httpGet:
               path: /nifi
               port: {{ .Values.service.port }}
               scheme: HTTPS
-            initialDelaySeconds: 180
-            periodSeconds: 30
-            failureThreshold: 5
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
   volumeClaimTemplates:
     - metadata:
         name: flow-data
