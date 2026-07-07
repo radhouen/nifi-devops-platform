@@ -19,8 +19,27 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.service.port }}
+            - containerPort: 18080
               name: http
+          command:
+            - /bin/sh
+            - -c
+            - |
+              /opt/nifi-registry/nifi-registry-current/bin/nifi-registry.sh run
+          livenessProbe:
+            httpGet:
+              path: /nifi-registry/
+              port: 18080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /nifi-registry/
+              port: 18080
+            initialDelaySeconds: 45
+            periodSeconds: 10
+            failureThreshold: 10
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -52,10 +71,11 @@ metadata:
   labels:
     app: nifi-registry
 spec:
-  type: {{ .Values.service.type }}
+  type: NodePort
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
+    - port: 18080
+      targetPort: 18080
+      nodePort: 30080
       protocol: TCP
       name: http
   selector:
