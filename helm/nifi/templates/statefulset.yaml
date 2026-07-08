@@ -57,6 +57,8 @@ spec:
               value: {{ .Values.service.port | quote }}
             - name: NIFI_WEB_HTTPS_HOST
               value: "0.0.0.0"
+            - name: NIFI_WEB_PROXY_HOST
+              value: "localhost:9443"
             - name: SINGLE_USER_CREDENTIALS_USERNAME
               value: {{ .Values.singleUserCredentials.username | quote }}
             - name: SINGLE_USER_CREDENTIALS_PASSWORD
