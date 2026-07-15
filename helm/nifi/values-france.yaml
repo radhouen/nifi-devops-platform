@@ -12,3 +12,4 @@ ingress:
   host: "nifi-fr.cgx.internal"
 
 replicaCount: 2
+# last-sync: Wed Jul 15 10:50:10 WAT 2026
