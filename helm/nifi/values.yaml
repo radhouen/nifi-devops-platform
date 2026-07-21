@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: apache/nifi
-  tag: "2.4.0"
+  tag: "2.10.0"
   pullPolicy: IfNotPresent
 
 nameOverride: ""

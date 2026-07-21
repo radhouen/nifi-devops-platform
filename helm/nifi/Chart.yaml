@@ -3,7 +3,7 @@ name: nifi
 description: Apache NiFi Helm chart for CGX China-France DB sync platform
 type: application
 version: 0.1.0
-appVersion: "1.25.0"
+appVersion: "2.10.0"
 keywords:
   - nifi
   - data-flow
