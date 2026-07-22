@@ -83,6 +83,9 @@ spec:
               path: /nifi
               port: {{ .Values.service.port }}
               scheme: HTTPS
+              httpHeaders:
+                - name: Host
+                  value: "localhost:9443"
             initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
             failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
@@ -91,6 +94,9 @@ spec:
               path: /nifi
               port: {{ .Values.service.port }}
               scheme: HTTPS
+              httpHeaders:
+                - name: Host
+                  value: "localhost:9443"
             initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
             failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
