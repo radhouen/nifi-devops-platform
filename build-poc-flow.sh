@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-
 NIFI_URL="https://localhost:9443/nifi-api"
 CURL="curl -sk"
 
@@ -10,27 +9,23 @@ TOKEN=$($CURL -X POST "$NIFI_URL/access/token" \
   -H "Content-Type: application/x-www-form-urlencoded")
 AUTH="Authorization: Bearer $TOKEN"
 
-echo "==> Getting root process group..."
 ROOT_PG=$($CURL -H "$AUTH" "$NIFI_URL/flow/process-groups/root" | jq -r '.processGroupFlow.id')
 echo "Root PG: $ROOT_PG"
 
 echo "==> Creating GenerateFlowFile..."
-GFF=$($CURL -X POST "$NIFI_URL/process-groups/$ROOT_PG/processors" \
-  -H "$AUTH" -H "Content-Type: application/json" \
+GFF=$($CURL -X POST "$NIFI_URL/process-groups/$ROOT_PG/processors" -H "$AUTH" -H "Content-Type: application/json" \
   -d '{"revision":{"version":0},"component":{"type":"org.apache.nifi.processors.standard.GenerateFlowFile","name":"GenerateFlowFile","position":{"x":200,"y":100}}}')
 GFF_ID=$(echo "$GFF" | jq -r '.id')
 echo "GenerateFlowFile ID: $GFF_ID"
 
 echo "==> Creating UpdateAttribute..."
-UA=$($CURL -X POST "$NIFI_URL/process-groups/$ROOT_PG/processors" \
-  -H "$AUTH" -H "Content-Type: application/json" \
+UA=$($CURL -X POST "$NIFI_URL/process-groups/$ROOT_PG/processors" -H "$AUTH" -H "Content-Type: application/json" \
   -d '{"revision":{"version":0},"component":{"type":"org.apache.nifi.processors.attributes.UpdateAttribute","name":"UpdateAttribute","position":{"x":200,"y":300}}}')
 UA_ID=$(echo "$UA" | jq -r '.id')
 echo "UpdateAttribute ID: $UA_ID"
 
 echo "==> Creating PutFile..."
-PF=$($CURL -X POST "$NIFI_URL/process-groups/$ROOT_PG/processors" \
-  -H "$AUTH" -H "Content-Type: application/json" \
+PF=$($CURL -X POST "$NIFI_URL/process-groups/$ROOT_PG/processors" -H "$AUTH" -H "Content-Type: application/json" \
   -d '{"revision":{"version":0},"component":{"type":"org.apache.nifi.processors.standard.PutFile","name":"PutFile","position":{"x":200,"y":500}}}')
 PF_ID=$(echo "$PF" | jq -r '.id')
 echo "PutFile ID: $PF_ID"
@@ -45,10 +40,10 @@ UA_REV=$($CURL -H "$AUTH" "$NIFI_URL/processors/$UA_ID" | jq -r '.revision.versi
 $CURL -X PUT "$NIFI_URL/processors/$UA_ID" -H "$AUTH" -H "Content-Type: application/json" \
   -d "{\"revision\":{\"version\":$UA_REV},\"component\":{\"id\":\"$UA_ID\",\"config\":{\"properties\":{\"region\":\"france\",\"target\":\"china\",\"sync.timestamp\":\"\${now()}\"}}}}" > /dev/null
 
-echo "==> Configuring PutFile properties..."
+echo "==> Configuring PutFile properties + auto-terminating relationships (processor is STOPPED by default, safe to configure)..."
 PF_REV=$($CURL -H "$AUTH" "$NIFI_URL/processors/$PF_ID" | jq -r '.revision.version')
-$CURL -X PUT "$NIFI_URL/processors/$PF_ID" -H "$AUTH" -H "Content-Type: application/json" \
-  -d "{\"revision\":{\"version\":$PF_REV},\"component\":{\"id\":\"$PF_ID\",\"config\":{\"properties\":{\"Directory\":\"/tmp/cgx-sync-output\",\"Conflict Resolution Strategy\":\"replace\"}}}}" > /dev/null
+$CURL -o /tmp/pf_config_resp.json -w "HTTP_CODE:%{http_code}\n" -X PUT "$NIFI_URL/processors/$PF_ID" -H "$AUTH" -H "Content-Type: application/json" \
+  -d "{\"revision\":{\"version\":$PF_REV},\"component\":{\"id\":\"$PF_ID\",\"config\":{\"properties\":{\"Directory\":\"/tmp/cgx-sync-output\",\"Conflict Resolution Strategy\":\"replace\"},\"autoTerminatedRelationships\":[\"success\",\"failure\"]}}}"
 
 echo "==> Connecting GenerateFlowFile -> UpdateAttribute..."
 $CURL -X POST "$NIFI_URL/process-groups/$ROOT_PG/connections" -H "$AUTH" -H "Content-Type: application/json" \
@@ -61,8 +56,8 @@ $CURL -X POST "$NIFI_URL/process-groups/$ROOT_PG/connections" -H "$AUTH" -H "Con
 start_processor() {
   local id=$1
   local rev=$($CURL -H "$AUTH" "$NIFI_URL/processors/$id" | jq -r '.revision.version')
-  $CURL -X PUT "$NIFI_URL/processors/$id" -H "$AUTH" -H "Content-Type: application/json" \
-    -d "{\"revision\":{\"version\":$rev},\"component\":{\"id\":\"$id\",\"state\":\"RUNNING\"}}" > /dev/null
+  $CURL -o /tmp/start_resp.json -w "HTTP_CODE:%{http_code}\n" -X PUT "$NIFI_URL/processors/$id" -H "$AUTH" -H "Content-Type: application/json" \
+    -d "{\"revision\":{\"version\":$rev},\"component\":{\"id\":\"$id\",\"state\":\"RUNNING\"}}"
 }
 
 echo "==> Starting all processors..."
@@ -70,4 +65,4 @@ start_processor "$GFF_ID"
 start_processor "$UA_ID"
 start_processor "$PF_ID"
 
-echo "==> Done. Flow is running."
+echo "==> Done."
