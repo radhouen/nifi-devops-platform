@@ -11,7 +11,7 @@ ingress:
   enabled: true
   host: "nifi-fr.cgx.internal"
 
-replicaCount: 2
+replicaCount: 1
 # last-sync: Wed Jul 15 10:50:10 WAT 2026
 # last-sync: Wed Jul 15 10:52:49 WAT 2026
 # last-sync: Wed Jul 15 10:53:21 WAT 2026
