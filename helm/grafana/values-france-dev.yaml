@@ -1,0 +1,17 @@
+grafana:
+  adminPassword: "cgxadmin123"
+  persistence:
+    size: 2Gi
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://prometheus-server.france-dev.svc.cluster.local:80
+          isDefault: true
+  grafana.ini:
+    server:
+      root_url: "http://grafana-france-dev.cgx.internal"
+environment: dev
+region: france

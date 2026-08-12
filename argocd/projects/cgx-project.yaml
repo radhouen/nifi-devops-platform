@@ -4,13 +4,25 @@ metadata:
   name: cgx-nifi
   namespace: argocd
 spec:
-  description: CGX NiFi DB sync platform — local PoC
+  description: CGX NiFi DB sync platform — France & China multi-environment
   sourceRepos:
     - https://github.com/radhouen/nifi-devops-platform.git
   destinations:
     - namespace: nifi-france
       server: https://kubernetes.default.svc
+    - namespace: france-prod
+      server: https://kubernetes.default.svc
+    - namespace: france-demo
+      server: https://kubernetes.default.svc
+    - namespace: france-qa
+      server: https://kubernetes.default.svc
+    - namespace: france-dev
+      server: https://kubernetes.default.svc
     - namespace: nifi-china
+      server: https://kubernetes.default.svc
+    - namespace: china-prod
+      server: https://kubernetes.default.svc
+    - namespace: china-demo
       server: https://kubernetes.default.svc
     - namespace: monitoring
       server: https://kubernetes.default.svc

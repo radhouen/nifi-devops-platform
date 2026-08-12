@@ -1,0 +1,12 @@
+prometheus:
+  server:
+    persistentVolume:
+      size: 20Gi
+    retention: 30d
+  extraScrapeConfigs: |
+    - job_name: 'nifi'
+      static_configs:
+        - targets: ['nifi-france-prod.svc.cluster.local:9092']
+      metrics_path: /metrics
+environment: prod
+region: france

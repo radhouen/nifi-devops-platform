@@ -1,0 +1,18 @@
+prometheus:
+  server:
+    persistentVolume:
+      enabled: true
+      storageClass: "local-path"
+      size: 5Gi
+    retention: "15d"
+  alertmanager:
+    enabled: false
+  prometheus-pushgateway:
+    enabled: false
+  extraScrapeConfigs: |
+    - job_name: 'nifi'
+      static_configs:
+        - targets: ['nifi.{{ .Release.Namespace }}.svc.cluster.local:9092']
+      metrics_path: /metrics
+environment: base
+region: base

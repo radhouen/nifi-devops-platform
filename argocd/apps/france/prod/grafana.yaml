@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: grafana-france-prod
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    region: france
+    environment: prod
+    component: grafana
+spec:
+  project: cgx-nifi
+  source:
+    repoURL: https://github.com/radhouen/nifi-devops-platform.git
+    targetRevision: khaled-branch
+    path: helm/grafana
+    helm:
+      valueFiles:
+        - values-france-prod.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: france-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 30s
+        maxDuration: 3m
+        factor: 2

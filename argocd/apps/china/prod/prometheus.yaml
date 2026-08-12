@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus-china-prod
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    region: china
+    environment: prod
+    component: prometheus
+spec:
+  project: cgx-nifi
+  source:
+    repoURL: https://github.com/radhouen/nifi-devops-platform.git
+    targetRevision: khaled-branch
+    path: helm/prometheus
+    helm:
+      valueFiles:
+        - values-china-prod.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: china-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 30s
+        maxDuration: 3m
+        factor: 2

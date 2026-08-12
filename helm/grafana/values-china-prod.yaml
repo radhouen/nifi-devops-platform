@@ -1,0 +1,17 @@
+grafana:
+  adminPassword: "cgxadmin123"
+  persistence:
+    size: 10Gi
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://prometheus-server.china-prod.svc.cluster.local:80
+          isDefault: true
+  grafana.ini:
+    server:
+      root_url: "http://grafana-china-prod.cgx.internal"
+environment: prod
+region: china
